@@ -1,5 +1,4 @@
 'use strict';
-
 // Add ECMA262-5 method binding if not supported natively
 //
 if (!('bind' in Function.prototype)) {
@@ -98,6 +97,120 @@ if (!('some' in Array.prototype)) {
     };
 }
 
+!window.addEventListener && (function (WindowPrototype, DocumentPrototype, ElementPrototype, addEventListener, removeEventListener, dispatchEvent, registry) {
+    WindowPrototype[addEventListener] = DocumentPrototype[addEventListener] = ElementPrototype[addEventListener] = function (type, listener) {
+        var target = this;
+        registry.unshift([target, type, listener, function (event) {
+                event.currentTarget = target;
+                event.preventDefault = function () {
+                    event.returnValue = false
+                };
+                event.stopPropagation = function () {
+                    event.cancelBubble = true
+                };
+                event.target = event.srcElement || target;
+                listener.call(target, event);
+            }]);
+        this.attachEvent("on" + type, registry[0][3]);
+    };
+    WindowPrototype[removeEventListener] = DocumentPrototype[removeEventListener] = ElementPrototype[removeEventListener] = function (type, listener) {
+        for (var index = 0, register; register = registry[index]; ++index) {
+            if (register[0] == this && register[1] == type && register[2] == listener) {
+                return this.detachEvent("on" + type, registry.splice(index, 1)[0][3]);
+            }
+        }
+    };
+    WindowPrototype[dispatchEvent] = DocumentPrototype[dispatchEvent] = ElementPrototype[dispatchEvent] = function (eventObject) {
+        return this.fireEvent("on" + eventObject.type, eventObject);
+    };
+})(Window.prototype, HTMLDocument.prototype, Element.prototype, "addEventListener", "removeEventListener", "dispatchEvent", []);
+// see http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#Node3-textContent
+
+if (Object.defineProperty && Object.getOwnPropertyDescriptor && Object.getOwnPropertyDescriptor(Element.prototype, "textContent") && !Object.getOwnPropertyDescriptor(Element.prototype, "textContent").get) {
+    (function () {
+        var nodeValue = Object.getOwnPropertyDescriptor(Text.prototype, "nodeValue");
+        Object.defineProperty(Text.prototype, "textContent", {
+            // It won't work if you just drop in nodeValue.get
+            // and nodeValue.set or the whole descriptor.
+            get: function () {
+                return nodeValue.get.call(this);
+            },
+            set: function (x) {
+                return nodeValue.set.call(this, x);
+            }
+        });
+        var innerText = Object.getOwnPropertyDescriptor(Element.prototype, "innerText");
+        Object.defineProperty(Element.prototype, "textContent", {
+            get: function () {
+                // It won't work if you just drop in innerText.get or the whole descriptor.
+                return innerText.get.call(this);
+            },
+            set: function (x) {
+                var c;
+                while (!!(c = this.firstChild)) {
+                    this.removeChild(c);
+                }
+                if (x !== null) {
+                    c = document.createTextNode(x);
+                    this.appendChild(c);
+                }
+                c = null;
+                //return innerText.set.call(this,x); // nope! you do weird things!
+                return x;
+            }
+        });
+    })();
+}
+/*
+ * insertAdjacentHTML.js
+ *   Cross-browser full HTMLElement.insertAdjacentHTML implementation.
+ *
+ * 2011-10-10
+ *
+ * By Eli Grey, http://eligrey.com
+ * Public Domain.
+ * NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+ */
+
+if (self.document && !("insertAdjacentHTML" in document.createElementNS("http://www.w3.org/1999/xhtml", "_"))) {
+
+    HTMLElement.prototype.insertAdjacentHTML = function (position, html) {
+        "use strict";
+        var
+                ref = this
+                , container = ref.ownerDocument.createElementNS("http://www.w3.org/1999/xhtml", "_")
+                , ref_parent = ref.parentNode
+                , node, first_child, next_sibling
+                ;
+        container.innerHTML = html;
+        switch (position.toLowerCase()) {
+            case "beforebegin":
+                while ((node = container.firstChild)) {
+                    ref_parent.insertBefore(node, ref);
+                }
+                break;
+            case "afterbegin":
+                first_child = ref.firstChild;
+                while ((node = container.lastChild)) {
+                    first_child = ref.insertBefore(node, first_child);
+                }
+                break;
+            case "beforeend":
+                while ((node = container.firstChild)) {
+                    ref.appendChild(node);
+                }
+                break;
+            case "afterend":
+                next_sibling = ref.nextSibling;
+                while ((node = container.lastChild)) {
+                    next_sibling = ref_parent.insertBefore(node, next_sibling);
+                }
+                break;
+        }
+    };
+}
+
+// classlist polyfill
 if ("document" in self) {
 
 // Full polyfill for browsers with no classList support
@@ -106,10 +219,8 @@ if ("document" in self) {
         (function (view) {
 
             "use strict";
-
             if (!('Element' in view))
                 return;
-
             var
                     classListProp = "classList"
                     , protoProp = "prototype"
@@ -130,7 +241,7 @@ if ("document" in self) {
                 }
                 return -1;
             }
-            // Vendors: please allow content code to instantiate DOMExceptions
+// Vendors: please allow content code to instantiate DOMExceptions
             , DOMEx = function (type, message) {
                 this.name = type;
                 this.code = DOMException[type];
@@ -195,7 +306,6 @@ if ("document" in self) {
                         updated = true;
                     }
                 } while (++i < l);
-
                 if (updated) {
                     this._updateClassName();
                 }
@@ -218,14 +328,12 @@ if ("document" in self) {
                         index = checkTokenAndGetIndex(this, token);
                     }
                 } while (++i < l);
-
                 if (updated) {
                     this._updateClassName();
                 }
             };
             classListProto.toggle = function (token, force) {
                 token += "";
-
                 var
                         result = this.contains(token)
                         , method = result ?
@@ -233,7 +341,6 @@ if ("document" in self) {
                         :
                         force !== false && "add"
                         ;
-
                 if (method) {
                     this[method](token);
                 }
@@ -247,7 +354,6 @@ if ("document" in self) {
             classListProto.toString = function () {
                 return this.join(" ");
             };
-
             if (objCtr.defineProperty) {
                 var classListPropDesc = {
                     get: classListGetter
@@ -267,27 +373,21 @@ if ("document" in self) {
             }
 
         }(self));
-
     } else {
 // There is full or partial native classList support, so just check if we need
 // to normalize the add/remove and toggle APIs.
 
         (function () {
             "use strict";
-
             var testElement = document.createElement("_");
-
             testElement.classList.add("c1", "c2");
-
             // Polyfill for IE 10/11 and Firefox <26, where classList.add and
             // classList.remove exist but support only one argument at a time.
             if (!testElement.classList.contains("c2")) {
                 var createMethod = function (method) {
                     var original = DOMTokenList.prototype[method];
-
                     DOMTokenList.prototype[method] = function (token) {
                         var i, len = arguments.length;
-
                         for (i = 0; i < len; i++) {
                             token = arguments[i];
                             original.call(this, token);
@@ -299,12 +399,10 @@ if ("document" in self) {
             }
 
             testElement.classList.toggle("c3", false);
-
             // Polyfill for IE 10 and Firefox <24, where classList.toggle does not
             // support the second argument.
             if (testElement.classList.contains("c3")) {
                 var _toggle = DOMTokenList.prototype.toggle;
-
                 DOMTokenList.prototype.toggle = function (token, force) {
                     if (1 in arguments && !this.contains(token) === !force) {
                         return force;
@@ -312,12 +410,21 @@ if ("document" in self) {
                         return _toggle.call(this, token);
                     }
                 };
-
             }
 
             testElement = null;
         }());
-
     }
 
+}
+if (window.attachEvent) {
+    window.attachEvent('onload', function () {
+        if (window.ActiveXObject !== undefined) {
+            if (this.isLocal || !(/^(get|post|head|put|delete|options)$/i.test(this.type))) {
+                $.createXHR = function () {
+                    return new window.ActiveXObject("Microsoft.XMLHTTP");
+                }
+            }
+        }
+    })
 }

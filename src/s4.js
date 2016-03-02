@@ -13,10 +13,10 @@
      * init function (internal use)
      * a = selector, dom element or function
      */
-    
 
-    function i(a,x) {
-        c.push.apply(this, a && a.nodeType ? [a] : '' + a === a ? (x && typeof x.querySelectorAll == "function")?x:(typeof x === 'string' && /^#/.test(x)?b.getElementById(x.substr(1)):b).querySelectorAll(a) : e)
+
+    function i(a, x) {
+        c.push.apply(this, a && a.nodeType ? [a] : '' + a === a ? (x && typeof x.querySelectorAll == "function") ? x : (typeof x === 'string' && /^#/.test(x) ? b.getElementById(x.substr(1)) : b).querySelectorAll(a) : e)
     }
 
     /*
@@ -25,8 +25,8 @@
      * http://www.dustindiaz.com/smallest-domready-ever
      * returns instance or executes function on ready
      */
-    s4 = function (a,x) {
-        return /^f/.test(typeof a) ? /c/.test(b.readyState) ? a() : $(b).on('DOMContentLoaded', a) : new i(a,x)
+    s4 = function (a, x) {
+        return /^f/.test(typeof a) ? /c/.test(b.readyState) ? a() : $(b).on('DOMContentLoaded', a) : new i(a, x)
     }
     $ = s4;
     // set ki prototype
@@ -116,7 +116,7 @@
         },
         append: function (a) {
             return this.each(function (b) {
-                b.innerHTML += a
+                b.appendChild(a[0]);
             })
         },
         after: function (a) {
@@ -267,10 +267,12 @@
             e.preventDefault();
         }
     }
-
+    $.createXHR = function () {
+        return new window.XMLHttpRequest();
+    }
     $.ajax = function (a) {
-        var ct="Content-Type"
-        var f="function"
+        var ct = "Content-Type"
+        var f = "function"
         function e(r, s, rt) {
             if ($.type(a.error) == f)
                 a.error(r, s, rt);
@@ -302,7 +304,7 @@
 
         var d = a.data;
         var g = (a.type && ["GET", "POST"].indexOf(a.type) > -1) ? a.type : 'GET';
-        var r = new XMLHttpRequest();
+        var r = $.createXHR();
 
         dct = 'application/x-www-form-urlencoded; charset=UTF-8';
 
@@ -318,7 +320,9 @@
         r.onload = function () {
             if (a.statusCode && $.type(a.statusCode[r.status]) == f)
                 a.statusCode[r.status]();
-
+            if (rstatus === 1223) {
+                r.status = 204;
+            }
             (r.status >= 200 && r.status < 400) ?
                     s(r.responseText, r.status == 304 ? "notmodified" : "success", r) :
                     e(r, "error", r.responseText);

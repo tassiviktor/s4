@@ -320,7 +320,7 @@
         r.onload = function () {
             if (a.statusCode && $.type(a.statusCode[r.status]) == f)
                 a.statusCode[r.status]();
-            if (rstatus === 1223) {
+            if (r.status === 1223) {
                 r.status = 204;
             }
             (r.status >= 200 && r.status < 400) ?

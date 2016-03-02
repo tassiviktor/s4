@@ -6,7 +6,7 @@ by Viktor Tassi
 
 Introduction
 ------------
-S4 is a small (~5k minified uncompressed) jQuery alternative for small projects. Mostly enough for basic needs. Due to small size, s4 might be suitable for IoT or embedded device development. My primary goals were simple implementation and keep  the size small.
+S4 is a small (~5k minified uncompressed) jQuery alternative for small projects. My primary goals were simple implementation and keep  the size small.
 
 Syntax is more or less jQuery 1.x compatible.
 

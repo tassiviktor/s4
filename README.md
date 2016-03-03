@@ -56,6 +56,43 @@ Available methods
 + $.stop()
 + $.ajax()
 
+Examples
+---------------
+
+Simple ajax call test case
+
+```javascript
+$.ajax({
+        type: "POST",
+        url: "http://your-server-address/path-to/file",
+        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+        data: $("#your-form-id").serialize(), 
+        dataType: null, //autodetect
+        processData: null, // default true
+        username: "admin",
+        password: "whatever",
+        statusCode: {
+            404: function () {
+                alert("page not found");
+            }
+        },
+        beforeSend: function (r, a) {
+            console.log("Beforesend: " + r + a);
+        },
+        success: function (resp) {
+            console.log("Succ: ");
+
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            console.log("ERR: " + textStatus + " " + errorThrown);
+        },
+        complete: function (xhr, status) {
+            console.log("Complete: " + status);
+
+        }
+    });
+```
+
 Version History
 ---------------
 0.9.2 (1 Mar 2016)

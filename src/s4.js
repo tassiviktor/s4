@@ -26,11 +26,10 @@
      * returns instance or executes function on ready
      */
     s4 = function (a, x) {
-        return /^f/.test(typeof a) ? /c/.test(b.readyState) ? a() : $(b).on('DOMContentLoaded', a) : new i(a, x)
+        return /^f/.test(typeof a) ? /c/.test(b.readyState) ? a() : s4(b).on('DOMContentLoaded', a) : new i(a, x)
     }
-    $ = s4;
     // set ki prototype
-    $[d] = i[d] = $.fn = i.fn = {
+    s4[d] = i[d] = s4.fn = i.fn = {
         // default length
         length: 0,
         splice: c.splice,
@@ -49,7 +48,7 @@
             return this
         },
         parent: function () {
-            return (this.length < 2) ? $(this[0].parentNode) : [];
+            return (this.length < 2) ? s4(this[0].parentNode) : [];
         },
         hasClass: function (a) {
             return this[0].classList.contains(a);
@@ -66,8 +65,11 @@
             })
             return this
         },
+        toggleClass:function(a){
+            return this.hasClass(a)?this.removeClass(a):this.addClass(a);
+        },
         css: function (a, b) {
-            if ($.type(a) === 'object') {
+            if (s4.type(a) === 'object') {
                 for (var prop in a) {
                     this.each(function (c) {
                         c.style[prop] = a[prop]
@@ -157,12 +159,12 @@
             var r = [];
             a === []._ ?
                     (this[0].options && this[0].getAttribute("multiple") ?
-                            $.each(this[0], function (x, y) {
+                            s4.each(this[0], function (x, y) {
                                 (y.selected) ? r.push(y.value) : 0;
                             }) : r.push(this[0].value))
                     : this.each(function (b) {
                         b.options && b.getAttribute("multiple") ?
-                                $.each(b, function (x, y) {
+                                s4.each(b, function (x, y) {
                                     (a.indexOf(y.value) > -1) ? y.selected = true : y.selected = false;
                                 })
                                 :
@@ -173,7 +175,7 @@
         serializeArray: function () {
             var q = [];
             this.each(function (c, d) {
-                $("input, select, checkbox, radio, textarea, div[contenteditable='true']", c).each(function (x) {
+                s4("input, select, checkbox, radio, textarea, div[contenteditable='true']", c).each(function (x) {
                     if (!x.disabled && x.type !== 'file') {
                         if (x.name) {
                             if (x.nodeName == "INPUT" && ['checkbox', 'radio'].indexOf(x.type) > -1 && x.checked) {
@@ -199,87 +201,84 @@
         serializeJSON: function () {
             return JSON.stringify(this.serializeArray());
         },
-        load: function (a, b, c) {
-
-        },
     }
     eUC = encodeURIComponent;
     /*Buildparams*/
     function bP(obj, pr) {
         var str = [];
-        if ($.isArray(obj)) {
-            $.each(obj, function (o, a) {
+        if (s4.isArray(obj)) {
+            s4.each(obj, function (o, a) {
                 var k = pr ? pr + "[" + a['name'] + "]" : a['name'], v = a['value'];
-                str.push($.type(v) == "object" ? $.bP(v, k) : eUC(k) + "=" + eUC(v));
+                str.push(s4.type(v) == "object" ? s4.bP(v, k) : eUC(k) + "=" + eUC(v));
             });
-        } else if ($.type(obj) == "object") {
+        } else if (s4.type(obj) == "object") {
             for (var p in obj) {
                 var k = pr ? pr + "[" + p + "]" : p, v = obj[p];
-                str.push($.type(v) == "object" ? $.bP(v, k) : eUC(k) + "=" + eUC(v));
+                str.push(s4.type(v) == "object" ? s4.bP(v, k) : eUC(k) + "=" + eUC(v));
             }
         } else {
             return obj;
         }
         return str.join("&");
     }
-    $.now = function () {
+    s4.now = function () {
         return Date.now();
     }
     // typeof null returns “object”
-    $.type = function (a) {
+    s4.type = function (a) {
         return ({}).toString.call(a).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
     }
-    $.inArray = function (a, b) {
+    s4.inArray = function (a, b) {
         return b.indexOf(a)
     }
-    $.isArray = function (a) {
+    s4.isArray = function (a) {
         return Array.isArray(a)
     }
-    $.map = function (a, b) {
+    s4.map = function (a, b) {
         return a.map(b) /*Untested*/
     }
-    $.trim = function (a) {
+    s4.trim = function (a) {
         return a.trim();
     }
-    $.parseJSON = function (a) {
+    s4.parseJSON = function (a) {
         return JSON.parse(a)
     }
-    $.parseHTML = function (a) {
+    s4.parseHTML = function (a) {
         var b = document.implementation.createHTMLDocument();
         b.body.innerHTML = a;
         return b.body.children
     }
 
-    $.each = function (arr, callback) {
+    s4.each = function (arr, callback) {
         for (var i = 0, l = arr.length; i < l; ++i) {
             callback.call(arr[i], i, arr[i]);
         }
         return this;
     }
 
-    $.param = function (o) {
+    s4.param = function (o) {
         return bP(o);
     }
-    $.stop = function (e) {
+    s4.stop = function (e) {
         if (!e.preventDefault) {
             e.returnValue = false;
         } else {
             e.preventDefault();
         }
     }
-    $.createXHR = function () {
+    s4.createXHR = function () {
         return new window.XMLHttpRequest();
     }
-    $.ajax = function (a) {
+    s4.ajax = function (a) {
         var ct = "Content-Type"
         var f = "function"
         function e(r, s, rt) {
-            if ($.type(a.error) == f)
+            if (s4.type(a.error) == f)
                 a.error(r, s, rt);
             c(r, s);
         }
         function c(r, s) {
-            if ($.type(a.complete) == f)
+            if (s4.type(a.complete) == f)
                 a.complete(r, s);
         }
         function s(rt, s, r) {
@@ -292,7 +291,7 @@
                     return;
                 }
             }
-            if ($.type(a.success) == f) {
+            if (s4.type(a.success) == f) {
                 a.success(rt, s, r);
             }
             c(r, s);
@@ -304,7 +303,7 @@
 
         var d = a.data;
         var g = (a.type && ["GET", "POST"].indexOf(a.type) > -1) ? a.type : 'GET';
-        var r = $.createXHR();
+        var r = s4.createXHR();
 
         dct = 'application/x-www-form-urlencoded; charset=UTF-8';
 
@@ -312,13 +311,13 @@
 
         if (!a.processData || a.processData !== false) {
             if (!a.headers[ct] || a.headers[ct].indexOf("x-www-form-urlencoded") > -1) {
-                d = $.param(a.data);
+                d = s4.param(a.data);
             }
         }
 
         r.open(g, a.url + (g == "GET" && d ? "?" + d : ""), true, a.username, a.password);
         r.onload = function () {
-            if (a.statusCode && $.type(a.statusCode[r.status]) == f)
+            if (a.statusCode && s4.type(a.statusCode[r.status]) == f)
                 a.statusCode[r.status]();
             if (r.status === 1223) {
                 r.status = 204;
@@ -343,7 +342,7 @@
         }
 
         a.headers["X-Requested-With"] = 'XMLHttpRequest';
-        if ($.type(a.beforeSend) == f)
+        if (s4.type(a.beforeSend) == f)
             a.beforeSend(r, a);
         Object.keys(a.headers).forEach(function (k) {
             r.setRequestHeader(k, a.headers[k]);
@@ -353,10 +352,16 @@
 
         return r;
     }
-    $.get = function (a, b, s, d) {
-        $.ajax({url: a, data: b, success: s, dataType: d});
+    s4.get = function (a, b, s, d) {
+        s4.ajax({url: a, data: b, success: s, dataType: d});
     }
-    $.post = function (a, b, s, d) {
-        $.ajax({type: "POST", url: a, data: b, success: s, dataType: d});
+    s4.post = function (a, b, s, d) {
+        s4.ajax({type: "POST", url: a, data: b, success: s, dataType: d});
     }
+    $ = s4;
 }(document, [], 'prototype');
+/*
+ * $(el).live();
+ * $(el).die();
+ * $(el).load();
+ */

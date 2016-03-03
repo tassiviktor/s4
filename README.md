@@ -6,9 +6,11 @@ by Viktor Tassi
 
 Introduction
 ------------
-S4 is a small (~5k minified uncompressed) jQuery alternative for small projects. My primary goals were simple implementation and keep  the size small.
+S4 is a small (~6k minified uncompressed) jQuery alternative for small projects. My primary goals were simple implementation and keep  the size small. Target platform is the all modern browsers (and Ie9+). 
 
-Syntax is more or less jQuery 1.x compatible.
+Partial support for Ie8+ is added by polyfills (ie8fixes.js).
+
+S4 syntax is more or less jQuery 1.x compatible.
 
 Available methods
 ------------

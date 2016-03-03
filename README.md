@@ -23,6 +23,7 @@ Available methods
 + .hasClass()
 + .addClass()
 + .removeClass()
++ .toggleClass()
 + .css()
 + .hasAttr()
 + .attr()
